@@ -1,0 +1,14 @@
+flowchart TD
+  subgraph Transport
+    Ctrl["ExampleController"]
+  end
+  subgraph Application
+    Svc["ExampleService"]
+  end
+  subgraph Data
+    Repo["ExampleRepository"]
+  end
+  DB[("Database")]
+  Ctrl -->|calls| Svc
+  Svc -->|uses| Repo
+  Repo -->|queries| DB

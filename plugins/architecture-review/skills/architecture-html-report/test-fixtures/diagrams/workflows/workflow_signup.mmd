@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant C as Client
+  participant Ctrl as ExampleController
+  participant Svc as ExampleService
+  participant Repo as ExampleRepository
+  C->>Ctrl: POST /signup
+  Ctrl->>Svc: signup(input)
+  Svc->>Repo: insert(user)
+  Repo-->>Svc: User
+  Svc-->>Ctrl: Session
+  Ctrl-->>C: 201 Created

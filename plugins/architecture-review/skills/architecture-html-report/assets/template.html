@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{PROJECT_NAME}} — Architecture Overview</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1c2530;
+    --muted: #5b6b7b;
+    --border: #e3e8ee;
+    --card: #f7f9fc;
+    --accent: #2563eb;
+    --accent-soft: #eff4ff;
+    --code-bg: #f2f4f8;
+    --shadow: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+    --maxw: 980px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f141a; --fg: #e6edf3; --muted: #9aa7b4; --border: #243240;
+      --card: #161d25; --accent: #6ea8fe; --accent-soft: #16233a;
+      --code-bg: #1a222b; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 48px 24px 96px; }
+  header.report-head { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 8px; }
+  header.report-head h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
+  header.report-head .meta { color: var(--muted); font-size: 14px; }
+  header.report-head .meta span { margin-right: 16px; white-space: nowrap; }
+  nav.toc {
+    position: sticky; top: 0; background: var(--bg); padding: 14px 0;
+    border-bottom: 1px solid var(--border); margin-bottom: 32px; z-index: 5;
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+  }
+  nav.toc a { color: var(--muted); text-decoration: none; font-size: 14px; }
+  nav.toc a:hover { color: var(--accent); }
+  nav.toc a.toc-sub { padding-left: 8px; font-size: 13px; opacity: .85; }
+  section { margin: 40px 0; scroll-margin-top: 64px; }
+  section > h2 {
+    font-size: 22px; margin: 0 0 6px; letter-spacing: -.01em;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  section > h2 .tag,
+  section > article > h3 .tag {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px;
+  }
+  section > p { color: var(--fg); margin: 8px 0 18px; }
+  section > article { margin: 28px 0; scroll-margin-top: 64px; }
+  section > article > h3 {
+    font-size: 18px; margin: 0 0 6px; letter-spacing: -.01em;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  section > article > p { color: var(--fg); margin: 6px 0 14px; }
+  article.workflow + article.workflow { border-top: 1px solid var(--border); padding-top: 22px; }
+  .diagram-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: var(--shadow); overflow-x: auto;
+  }
+  .diagram-card .caption { color: var(--muted); font-size: 13px; margin-top: 12px; }
+  pre.mermaid { margin: 0; text-align: center; }
+  .mermaid svg { max-width: 100%; height: auto; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+  p code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 8px 0; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 20px; margin-top: 56px; }
+  .render-error {
+    background: #fff0f0; border: 1px solid #f3b4b4; color: #8a1f1f;
+    border-radius: 8px; padding: 12px 14px; font-size: 13px; margin-top: 12px;
+    white-space: pre-wrap; font-family: ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    .render-error { background: #2a1416; border-color: #5a2a2a; color: #ffb4b4; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="report-head">
+    <h1>{{PROJECT_NAME}} — Architecture Overview</h1>
+    <div class="meta">
+      <span>Generated: {{DATE}}</span>
+      <span>Stack: {{STACK}}</span>
+      <span>Scope: {{SCOPE}}</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+{{TOC_LINKS}}
+  </nav>
+
+  <!-- ============================================================= -->
+  <!-- PART 1 — APP SUMMARY                                           -->
+  <!-- Prose overview + static-shape diagrams (layers, components,    -->
+  <!-- dependencies, data model). Drop any article whose diagram      -->
+  <!-- doesn't apply — its TOC sub-link must be removed too.          -->
+  <!-- ============================================================= -->
+  <section id="summary">
+    <h2>App Summary</h2>
+    <p>{{SUMMARY_PARAGRAPH}}</p>
+
+{{SUMMARY_ARTICLES}}
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- PART 2 — KEY WORKFLOWS                                         -->
+  <!-- One <article class="workflow"> per workflow (target 2–5).      -->
+  <!-- Each carries its own sequence diagram.                         -->
+  <!-- ============================================================= -->
+  <section id="workflows">
+    <h2>Key Workflows</h2>
+    <p>{{WORKFLOWS_INTRO}}</p>
+
+{{WORKFLOW_ARTICLES}}
+  </section>
+
+  <footer>
+    {{PROJECT_NAME}} architecture overview · diagrams rendered with Mermaid {{MERMAID_VERSION}} from a pinned CDN runtime · syntax pre-validated.
+  </footer>
+
+</div>
+
+<!-- Mermaid: exact version pinned for reproducibility. Update deliberately. -->
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@{{MERMAID_VERSION}}/dist/mermaid.esm.min.mjs";
+
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "strict",
+    theme: window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default",
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
+    sequence:  { useMaxWidth: true },
+    er:        { useMaxWidth: true }
+  });
+
+  // Render each diagram individually so one bad diagram can't blank the page.
+  // (Diagrams are pre-validated by scripts/validate_mermaid.sh, so this is a
+  // defensive net — it surfaces a readable error instead of a silent failure.)
+  // Empty <pre class="mermaid"> blocks (e.g. an omitted optional article, or
+  // the leftover canonical workflow template instance) are pruned along with
+  // their nearest <article> or <section> wrapper so no empty cards leak through.
+  const blocks = document.querySelectorAll("pre.mermaid");
+  for (let i = 0; i < blocks.length; i++) {
+    const el = blocks[i];
+    const src = el.textContent;
+    if (!src || !src.trim()) {
+      const wrapper = el.closest("article") || el.closest("section");
+      wrapper?.remove();
+      continue;
+    }
+    try {
+      const { svg } = await mermaid.render("mmd-" + i, src);
+      el.innerHTML = svg;
+    } catch (err) {
+      const box = document.createElement("div");
+      box.className = "render-error";
+      box.textContent = "Diagram failed to render:\n" + (err?.message || err);
+      el.replaceWith(box);
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "projectName": "Fixture API",
+  "date": "2026-06-09",
+  "stack": "Node.js",
+  "scope": "test-fixtures",
+  "summaryParagraph": "The fixture API exercises the report builder and recursive Mermaid validation.",
+  "appSummary": [
+    {
+      "id": "layers",
+      "title": "Layers",
+      "tag": "flowchart",
+      "intro": "The fixture has a transport, application, and data layer.",
+      "diagram": "diagrams/layers.mmd",
+      "caption": "This diagram is intentionally small so it can be used as a fast fixture."
+    }
+  ],
+  "workflowsIntro": "The fixture includes one workflow stored under a nested workflows directory.",
+  "workflows": [
+    {
+      "id": "workflow-signup",
+      "title": "Signup",
+      "tag": "sequence",
+      "intro": "A client signs up and receives a session.",
+      "diagram": "diagrams/workflows/workflow_signup.mmd",
+      "caption": "The nested workflow file proves recursive validator discovery."
+    }
+  ]
+}

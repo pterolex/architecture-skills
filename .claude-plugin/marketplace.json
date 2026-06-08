@@ -1,0 +1,22 @@
+{
+  "name": "architecture-skills",
+  "owner": {
+    "name": "pterolex",
+    "url": "https://github.com/pterolex"
+  },
+  "metadata": {
+    "description": "Skills for reviewing and visualizing software architecture.",
+    "version": "1.1.0"
+  },
+  "plugins": [
+    {
+      "name": "architecture-review",
+      "source": "./plugins/architecture-review",
+      "description": "Analyze backend architecture and generate validated Mermaid architecture overviews as HTML.",
+      "version": "1.1.0",
+      "category": "development",
+      "tags": ["architecture", "code-review", "mermaid", "diagrams", "documentation"],
+      "author": { "name": "pterolex" }
+    }
+  ]
+}
