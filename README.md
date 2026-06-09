@@ -6,7 +6,7 @@ A Claude Code plugin marketplace with skills for reviewing and visualizing softw
 
 Two skills:
 
-- **`analyze-backend-architecture`** — reviews a backend codebase for layering quality, separation of concerns, data-flow clarity, dependency injection, and Single-Level-of-Abstraction violations across routes, services, and repositories. Writes `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md` plus a structured `ARCHITECTURE_FACTS.json` handoff for visualization.
+- **`analyze-backend-architecture`** — reviews a backend codebase for layering quality, separation of concerns, data-flow clarity, dependency injection, Single-Level-of-Abstraction violations, and Stepdown Rule (top-down narrative ordering) issues across routes, services, and repositories. Writes `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md` plus a structured `ARCHITECTURE_FACTS.json` handoff for visualization.
 - **`architecture-html-report`** — generates a single-file HTML architecture overview with Mermaid diagrams. Two-tier layout: an **App Summary** (layers, components, dependency graph, data model) and **Key Workflows** (one sequence diagram per high-value flow). The report loads Mermaid from an exact pinned CDN runtime, and every diagram's syntax is validated before it is embedded.
 
 ## Install

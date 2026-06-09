@@ -3,7 +3,7 @@ name: analyze-backend-architecture
 argument-hint: <path-to-repository>
 disable-model-invocation: true
 user-invocable: true
-description: Analyze backend architecture for layering quality, data flow clarity, separation of concerns, and Single Level of Abstraction violations across routes, services, and data access.
+description: Analyze backend architecture for layering quality, data flow clarity, separation of concerns, Single Level of Abstraction violations, and Stepdown Rule (top-down readability) issues across routes, services, and data access.
 ---
 
 # Analyze Backend Architecture
@@ -14,7 +14,7 @@ This skill is framework- and language-agnostic. It applies to Express/NestJS/Fas
 
 ## Philosophy
 
-This review is grounded in five principles that reinforce each other:
+This review is grounded in six principles that reinforce each other:
 
 1. **Single Level of Abstraction (SLA)**: Every unit — route handlers, services, and repositories alike — should operate at one consistent abstraction level. A route handler orchestrates high-level service calls; a service composes domain operations; a repository composes data-access primitives. None of them should mix levels. A `createOrder` controller shouldn't mix `orderService.create(...)` with a raw SQL string and a Stripe SDK call inline. Equally, an `OrderService` shouldn't mix `paymentGateway.charge(...)` with hand-rolled `JSON.parse` of an HTTP response and bcrypt hashing. SLA is recursive: if you clean up the controller but leave the service full of mixed-level plumbing, the architecture hasn't actually improved. When you see a unit mixing abstraction levels at any depth, that's the most important signal something needs restructuring.
 
@@ -25,6 +25,8 @@ This review is grounded in five principles that reinforce each other:
 4. **Minimal Duplication**: Similar logic repeated across handlers or services signals a missing abstraction. But extract only when the duplication is structural (same orchestration shape, same query pattern, same validation rule), not merely superficial. When multiple services duplicate the same external call, the fix is NOT to merge them into one mega-service — it's to extract the shared logic into a repository or gateway that both services consume. Cross-cutting concerns (auth, logging, validation, error handling, rate limiting) that are copy-pasted into many handlers should move into middleware, decorators, or interceptors.
 
 5. **Explicit Dependencies & Testability**: Dependencies should be injected, not reached for via globals, singletons, or module-level side effects. A service that imports a concrete database connection at module scope is hard to test and tightly coupled. A service that receives its repository through its constructor (or DI container) can be tested in isolation and reconfigured per environment. Watch for hidden dependencies: direct `process.env` reads scattered through business logic, global mutable state, `new`-ing concrete classes deep inside business logic instead of receiving them.
+
+6. **The Stepdown Rule (top-down narrative)**: Within a file, code should read like a newspaper article — headline first, synopsis at the top, detail increasing as you read down. Every function should be followed by the functions it calls (the next level of abstraction), so the reader descends one abstraction level at a time. The mental test: each function should read as a "To" paragraph — "To create an order: validate the input, charge the payment, persist the order" — with each named step defined just below. The Stepdown Rule is SLA applied to file organization: SLA governs what a unit does; stepdown governs where it sits, so the abstraction hierarchy is visible while scanning. A file whose public entry point is buried at the bottom under a pile of helpers, or whose top-to-bottom read keeps jumping between high-level orchestration and low-level plumbing, fails this rule even when the layering between files is clean.
 
 ## Analysis Workflow
 
@@ -83,6 +85,25 @@ For each repository, DAO, or gateway:
 - Does it leak persistence details (ORM entities, SQL row shapes, raw API payloads) upward, or does it return clean domain objects?
 - Does it contain business logic that belongs in a service? (Repositories should do data access, not decide business rules.)
 - Is there an abstraction at all, or do services reach past it to the raw client?
+
+### Step 2d: Check intra-file organization (Stepdown Rule)
+
+While reading each controller, service, and repository in Steps 2a–2c, also evaluate the file's vertical organization:
+
+- Does the file read top-down like a narrative? Public entry points (exported functions, public methods, route registrations) should appear first, followed by the helpers they call, at progressively lower levels of abstraction.
+- When function A calls function B, is B defined close below A? Callers above callees, vertically adjacent where possible.
+- Can each function be read as a "To" paragraph? ("To `createOrder`: validate input, charge payment, persist order, send confirmation" — with each step defined just below.) If reading a function requires scrolling up and around to find its pieces, the ordering is fighting the reader.
+- Does a top-to-bottom read keep jumping abstraction levels — a high-level orchestration, then a string-padding helper, then another use case, then SQL assembly?
+- Is the main use case buried at the bottom of the file beneath the private helpers it calls?
+
+**Examples of stepdown violations:**
+- A service file where `create()` — the primary use case — is defined at line 300, below the twelve private helpers it composes
+- A helper defined hundreds of lines away from its single caller
+- A file ordered alphabetically or by accretion (newest function appended last) rather than by call order
+
+Respect language constraints: where the language allows free ordering (JS/TS, Go, Java, C#, Python functions, Ruby), expect callers above callees; where declaration order is forced (C without prototypes, module-level script code), don't flag what the language requires.
+
+Stepdown findings are usually **Low** severity on their own — but a file that fails the stepdown read is often the smoke that leads to a real SLA fire: if functions can't be ordered into a clean narrative, the unit is probably mixing abstraction levels. Check for the deeper violation before writing it up as a pure ordering issue.
 
 ### Step 3: Analyze module/service APIs (contracts and signatures)
 
@@ -255,7 +276,7 @@ Keep `ARCHITECTURE_FACTS.json` factual and conservative. If you are unsure wheth
 ### [ISSUE-ID]: [Short descriptive title]
 
 **Severity**: High | Medium | Low
-**Principle**: SLA Violation | Layering Violation | Leaky Boundary | Missing Data Abstraction | Hidden Dependency | Cross-Cutting Duplication | Poor Module API
+**Principle**: SLA Violation | Layering Violation | Leaky Boundary | Missing Data Abstraction | Hidden Dependency | Cross-Cutting Duplication | Poor Module API | Stepdown Violation
 **Location**: `path/to/file.ext`
 
 [1-2 sentence explanation of WHY this is a problem — what breaks, what becomes harder to maintain or test, what couples the code.]
@@ -296,6 +317,7 @@ Keep `ARCHITECTURE_FACTS.json` factual and conservative. If you are unsure wheth
 | Dependency Injection & Testability | | |
 | Cross-Cutting Concerns (auth/errors/validation) | | |
 | Code Duplication | | |
+| Intra-File Organization (Stepdown Rule) | | |
 | **Overall** | | |
 ```
 
@@ -313,7 +335,7 @@ The CURRENT (Bad) and Recommended (Good) examples are the most important part of
 
 - **High**: Affects multiple units or makes the codebase actively harder to work with or test. Business logic in controllers, services talking to the database directly, transport types leaking into the domain, no error-handling strategy.
 - **Medium**: Localized problem that affects readability, testability, or maintainability of a specific area. Oversized service APIs, inconsistent error handling, duplicated queries.
-- **Low**: Organization preference that would improve clarity. Minor naming issues, a slightly misplaced helper, an options object that would read better.
+- **Low**: Organization preference that would improve clarity. Minor naming issues, a slightly misplaced helper, an options object that would read better, a file that violates the Stepdown Rule (entry points buried below their helpers, callers far from callees). Escalate a stepdown finding to Medium only when it co-occurs with mixed abstraction levels in the same unit — then report it under the SLA violation instead.
 
 ### Tone
 
@@ -322,7 +344,7 @@ Be direct and constructive. The report should read like advice from a senior col
 ## Important Notes
 
 - Analyze ALL controllers/route handlers, not just a sample. The transport layer is where layering problems are most visible. Then follow the call tree downward — SLA and layering violations in services and repositories are just as important as violations in controllers.
-- Do not comment on code formatting, linting, or naming conventions beyond what affects architecture — this review is about layering, separation of concerns, and data flow.
+- Do not comment on code formatting, linting, or naming conventions beyond what affects architecture — this review is about layering, separation of concerns, data flow, and readable code organization. Function *ordering* within a file is in scope (that's the Stepdown Rule); indentation, line length, and style-guide concerns are not.
 - Do not suggest adding libraries, changing the database, or switching frameworks unless the existing patterns are fundamentally broken.
 - Respect the project's scale. A small service does not need the same ceremony as a large one — flag missing abstraction only where the code is actually paying for its absence (duplicated logic, direct external calls, hard-to-test units). Do not recommend layering for its own sake.
 - Prioritize issues by impact — lead with the findings that would make the biggest difference if fixed.
