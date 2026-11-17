@@ -6,7 +6,7 @@ A Claude Code plugin marketplace with skills for reviewing and visualizing softw
 
 Two skills:
 
-- **`analyze-backend-architecture`** — reviews a backend codebase for layering quality, separation of concerns, data-flow clarity, dependency injection, Single-Level-of-Abstraction violations, and Stepdown Rule (top-down narrative ordering) issues across routes, services, and repositories. Writes `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md` plus a structured `ARCHITECTURE_FACTS.json` handoff for visualization.
+- **`analyze-backend-architecture`** — reviews a backend (REST, GraphQL, gRPC or worker service) for rule ownership, layering, boundary discipline, explicit state transitions, job and transaction safety under retry, and duplication. Every finding is verified against the code by independent checker passes, ranked by what it breaks, and written ticket-ready. Supports follow-up passes that re-status every item of an earlier report. Writes `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md`.
 - **`architecture-html-report`** — generates a single-file HTML architecture overview with Mermaid diagrams. Two-tier layout: an **App Summary** (layers, components, dependency graph, data model) and **Key Workflows** (one sequence diagram per high-value flow). The report loads Mermaid from an exact pinned CDN runtime, and every diagram's syntax is validated before it is embedded.
 
 ## Install
@@ -83,7 +83,11 @@ architecture-skills/
         │   └── plugin.json
         └── skills/
             ├── analyze-backend-architecture/
-            │   └── SKILL.md
+            │   ├── SKILL.md
+            │   └── references/
+            │       ├── reviewer-brief.md
+            │       ├── checker-brief.md
+            │       └── report-template.md
             └── architecture-html-report/
                 ├── SKILL.md
                 ├── assets/template.html

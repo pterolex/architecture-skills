@@ -44,7 +44,7 @@ You cannot diagram what you have not understood. Gather facts for both parts of 
 - Strong candidates: signup, login/auth-refresh, primary write paths, webhook ingest, payment submission, background retry/reconciliation.
 - Skip simple CRUD reads unless they are architecturally distinct.
 
-If `ARCHITECTURE_FACTS.json`, `ARCHITECTURE_REVIEW_RESULTS.md`, or `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md` exists, read it first and reuse it. Treat `ARCHITECTURE_FACTS.json` as the structured handoff from `analyze-backend-architecture`; verify unclear edges in source before drawing them.
+If `ARCHITECTURE_FACTS.json`, `ARCHITECTURE_REVIEW_RESULTS.md`, or `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md` exists, read it first and reuse it. Treat `BACKEND_ARCHITECTURE_REVIEW_RESULTS.md` (written by `analyze-backend-architecture`) and any `ARCHITECTURE_FACTS.json` as verified starting points; verify unclear edges in source before drawing them.
 
 ### Step 2: Choose diagrams
 
